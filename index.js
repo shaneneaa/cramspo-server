@@ -69,17 +69,56 @@ app.post('/signup',(req,res)=>{
         res.json({token: jwt.sign(payload,secretKey)});
     });
 });
-//feed
 
-// app.post('/feed',(req,res)=>{
-//     let sql = "INSERT INTO feed SET ?";
-    
-//     let query =conn.query(sql,[req.body],(err,result)=>{
-//         if(err) throw err;
-//         let payload = {
-//             user_id: req.body.insertId,
-//             feed_id: result.insertId,
-//             message: req.body.massage
-//         };
-//     });
-// });
+app.post('/workspace',verifyToken, (req,res)=>{
+    req.body['user_id'] = req.token.user_id;
+    let sql = "INSERT INTO workspace SET ?";
+    conn.query(sql,[req.body], (err,result) =>{
+        if(err) throw err;
+        res.json({message: "workspace inserted"});
+    });
+}); 
+
+app.get('/workspace',verifyToken, (req,res)=>{
+    let sql = "SELECT * FROM workspace WHERE isVerify = 1";
+    conn.query(sql,(err,result)=>{
+        if(err) throw err;
+        res.json(result);
+    });
+});
+
+app.post('/feed',verifyToken, (req,res)=>{
+    let sql = "INSERT INTO feed(user_id,message) VALUES(?)";
+    let insert = [req.token.user_id, req.body.message];
+    conn.query(sql,(err,result) =>{
+        if(err) throw err;
+        res.json({message: "feed inserted"});
+    });
+});
+
+app.get('/feed',verifyToken, (req,res)=>{
+    let sql = "SELECT * FROM feed";
+    conn.query(sql,(err,result)=>{
+        if(err) throw err;
+        res.json(result);
+    });
+});
+
+
+function verifyToken(req,res,next){
+    res.setHeader('Content-type','Application/json');
+    const bearerHeader = req.headers['authorization'];
+    if(bearerHeader !== 'undefined'){
+        const bearerToken = bearerHeader.split(' ')[1];
+        jwt.verify(bearerToken,secretKey , (err,result) =>{
+            if(err){
+                res.status(403).json({message: err.message});
+            } else {
+                req.token = result;
+                next();
+            }
+        });
+    } else {
+        res.status(403).json({message: "Token missing from header"});
+    }
+}
