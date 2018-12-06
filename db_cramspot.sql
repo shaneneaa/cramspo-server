@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 02, 2018 at 01:00 PM
+-- Generation Time: Dec 06, 2018 at 11:42 AM
 -- Server version: 10.1.28-MariaDB
 -- PHP Version: 7.1.11
 
@@ -34,6 +34,28 @@ CREATE TABLE `feed` (
   `message` varchar(255) NOT NULL,
   `date_added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notification`
+--
+
+CREATE TABLE `notification` (
+  `notification_id` int(11) NOT NULL,
+  `to_user` int(11) NOT NULL,
+  `from_user` int(11) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `date_time` datetime NOT NULL,
+  `body` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `notification`
+--
+
+INSERT INTO `notification` (`notification_id`, `to_user`, `from_user`, `type`, `date_time`, `body`) VALUES
+(8, 5, 5, '1', '3201-02-13 12:12:00', '');
 
 -- --------------------------------------------------------
 
@@ -80,15 +102,17 @@ CREATE TABLE `workspace` (
   `type` varchar(255) NOT NULL,
   `rate_type` varchar(255) NOT NULL,
   `capacity` int(11) NOT NULL,
-  `isVerify` tinyint(1) NOT NULL DEFAULT '0'
+  `isVerify` tinyint(1) NOT NULL DEFAULT '0',
+  `workspace_image` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `workspace`
 --
 
-INSERT INTO `workspace` (`space_id`, `user_id`, `picture`, `rate`, `amenities`, `location_no`, `location_street`, `location_barangay`, `location_city`, `location_province`, `type`, `rate_type`, `capacity`, `isVerify`) VALUES
-(3, 5, '', '121', 'wefwf', '123', 'fdsdaf', 'fdsdfs', '', 'sfsfsdf', 'Corporate Office', '', 3, 1);
+INSERT INTO `workspace` (`space_id`, `user_id`, `picture`, `rate`, `amenities`, `location_no`, `location_street`, `location_barangay`, `location_city`, `location_province`, `type`, `rate_type`, `capacity`, `isVerify`, `workspace_image`) VALUES
+(6, 5, '', '343', 'fdsfs', '232', 'fsadfa', 'dsafasdf', '', 'asdfasdf', 'Corporate Office', 'hour', 3434, 1, 'http://localhost:3000/images/workspace/nonn82sjpc9wxjv.jpg'),
+(7, 5, '', '200', 'Computer, Wifi, shabu', '21', 'Amagis', 'Mabayuan', 'Olongapo', 'Zambales', 'Empty Room', 'day', 20, 1, 'http://localhost:3000/images/workspace/nonn4d4jpcc0zy3.jpg');
 
 --
 -- Indexes for dumped tables
@@ -100,6 +124,14 @@ INSERT INTO `workspace` (`space_id`, `user_id`, `picture`, `rate`, `amenities`, 
 ALTER TABLE `feed`
   ADD PRIMARY KEY (`feed_id`),
   ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `notification`
+--
+ALTER TABLE `notification`
+  ADD PRIMARY KEY (`notification_id`),
+  ADD KEY `to_user` (`to_user`),
+  ADD KEY `from_user` (`from_user`);
 
 --
 -- Indexes for table `user`
@@ -125,6 +157,12 @@ ALTER TABLE `feed`
   MODIFY `feed_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `notification`
+--
+ALTER TABLE `notification`
+  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
@@ -134,7 +172,7 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `workspace`
 --
 ALTER TABLE `workspace`
-  MODIFY `space_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `space_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables
@@ -145,6 +183,13 @@ ALTER TABLE `workspace`
 --
 ALTER TABLE `feed`
   ADD CONSTRAINT `feed_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `notification`
+--
+ALTER TABLE `notification`
+  ADD CONSTRAINT `notification_ibfk_1` FOREIGN KEY (`to_user`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `notification_ibfk_2` FOREIGN KEY (`from_user`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `workspace`
