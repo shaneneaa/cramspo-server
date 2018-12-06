@@ -5,6 +5,8 @@ const jwt = require('jsonwebtoken');
 const mysql = require('mysql');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
+const formidable = require('formidable');
+var uniqid = require('uniqid');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -19,6 +21,33 @@ const conn = mysql.createConnection({
     password : '',
     database : 'db_cramspot'
 });
+
+function uploadPhoto(req,res,next){
+    var form = new formidable.IncomingForm();
+    var workspaceImagePath;
+
+    form.parse(req, (err,fields,files)=>{
+        req.body = fields;
+    });
+
+    form.on('fileBegin', function (name, file){
+        let newImageName = uniqid()+'.'+ file.name.split('.').pop();
+        workspaceImagePath = __dirname + '/images/workspace/' + newImageName;
+        file.path = workspaceImagePath;
+        workspaceImagePath = 'http://localhost:3000/images/workspace/' + newImageName;
+    });
+
+    form.on('file', function (name, file){
+        req.body.workspac_image = workspaceImagePath;
+        console.log('Uploaded ' + file.name);
+    });
+
+    form.on('end', () => {
+        req.body.workspace_image = workspaceImagePath;
+        next();
+    });
+
+}
 
 const secretKey = "ver";
 
@@ -70,7 +99,7 @@ app.post('/signup',(req,res)=>{
     });
 });
 
-app.post('/workspace',verifyToken, (req,res)=>{
+app.post('/workspace',[verifyToken,uploadPhoto], (req,res)=>{
     req.body['user_id'] = req.token.user_id;
     let sql = "INSERT INTO workspace SET ?";
     conn.query(sql,[req.body], (err,result) =>{
@@ -79,9 +108,47 @@ app.post('/workspace',verifyToken, (req,res)=>{
     });
 }); 
 
-app.get('/workspace',verifyToken, (req,res)=>{
+app.get('/workspace', (req,res)=>{
     let sql = "SELECT * FROM workspace WHERE isVerify = 1";
     conn.query(sql,(err,result)=>{
+        if(err) throw err;
+        res.json(result);
+    });
+});
+
+app.post('/workspace-verify',(req,res)=>{
+    let sql = "UPDATE workspace SET isVerify = !isVerify WHERE space_id = ? ";
+    conn.query(sql,[req.body.space_id],(err,result)=>{
+        if(err) throw err;
+        console.log('worked');
+        res.json({message: "updated"});
+    });
+});
+
+app.get('/workspace-all', (req,res)=>{
+    let sql = "SELECT workspace.* , user.firstname, user.lastname FROM workspace LEFT JOIN user on user.user_id = workspace.user_id";
+    conn.query(sql,(err,result)=>{
+        if(err) throw err;
+        res.json(result);
+    });
+});
+
+app.post('/notification',verifyToken, (req,res)=>{
+    let sql = "INSERT INTO notification SET ?";
+    req.body['from_user'] = req.token.user_id;
+    conn.query(sql,[req.body],(err,result)=>{
+        if(err) throw err;
+        console.log(result);
+        res.json({message: "Notification sent!"});
+    });
+});
+
+app.get('/notification',verifyToken,(req,res)=>{
+    let sql = `SELECT notification.* , user.firstname, user.lastname 
+    FROM notification 
+    LEFT JOIN user on user.user_id = notification.from_user 
+    WHERE notification.to_user = ?`;
+    conn.query(sql,[req.token.user_id],(err,result)=>{
         if(err) throw err;
         res.json(result);
     });
@@ -122,3 +189,6 @@ function verifyToken(req,res,next){
         res.status(403).json({message: "Token missing from header"});
     }
 }
+
+//serve images
+app.use('/images',express.static('images'));
