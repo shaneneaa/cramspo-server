@@ -13,6 +13,8 @@ app.use(bodyParser.json());
 
 console.clear();
 
+const secretKey = "ver";
+
 //Create database connection
 
 const conn = mysql.createConnection({
@@ -49,7 +51,6 @@ function uploadPhoto(req,res,next){
 
 }
 
-const secretKey = "ver";
 
 //mysq connection
 conn.connect();
@@ -99,6 +100,14 @@ app.post('/signup',(req,res)=>{
     });
 });
 
+app.get('/user/:id',verifyToken,(req,res)=>{
+    let sql = "SELECT user_id,firstname,lastname,email,contactnum FROM user WHERE user_id = ?";
+    conn.query(sql,[req.params.id],(err,result)=>{
+        if(err) throw err;
+        res.json(result[0]);
+    });
+});
+
 app.post('/workspace',[verifyToken,uploadPhoto], (req,res)=>{
     req.body['user_id'] = req.token.user_id;
     let sql = "INSERT INTO workspace SET ?";
@@ -115,6 +124,27 @@ app.get('/workspace', (req,res)=>{
         res.json(result);
     });
 });
+
+
+
+app.get('/workspace/:id',verifyToken, (req,res)=>{
+    let workspace_id = req.params.id;
+    let sql = "SELECT * FROM workspace WHERE space_id = ? ";
+    conn.query(sql, [workspace_id], (err,result)=>{
+        if(err) throw err;
+        res.json(result[0]);
+    });
+});
+
+app.get('/workspace/user/:id',verifyToken, (req,res)=>{
+    let workspace_id = req.params.id;
+    let sql = "SELECT * FROM workspace WHERE user_id = ? AND isVerify = 1";
+    conn.query(sql, [workspace_id], (err,result)=>{
+        if(err) throw err;
+        res.json(result);
+    });
+});
+
 
 app.post('/workspace-verify',(req,res)=>{
     let sql = "UPDATE workspace SET isVerify = !isVerify WHERE space_id = ? ";
@@ -143,6 +173,31 @@ app.post('/notification',verifyToken, (req,res)=>{
     });
 });
 
+app.delete('/notification',verifyToken,(req,res)=>{
+    console.log(req);
+    let sql = "DELETE FROM notification WHERE notification_id = ? ";
+    conn.query(sql,[req.body.notification_id],(err,result)=>{
+        if(err) throw err;
+        res.json({message: "deleted from database"});
+    });
+});
+
+
+app.post('/notification/confirm',verifyToken, (req,res)=>{
+    if(req.body.type == 1){
+        let updateData = {
+            to_user: req.body.from_user,
+            from_user: req.body.to_user,
+            type: 2
+        };
+        let sql = "UPDATE notification SET ? ";
+        conn.query(sql, [updateData],(err,result)=>{
+            if(err) throw err;
+            res.json({message: "notification confirm"});
+        });
+    }
+});
+
 app.get('/notification',verifyToken,(req,res)=>{
     let sql = `SELECT notification.* , user.firstname, user.lastname 
     FROM notification 
@@ -157,7 +212,7 @@ app.get('/notification',verifyToken,(req,res)=>{
 app.post('/feed',verifyToken, (req,res)=>{
     let sql = "INSERT INTO feed(user_id,message) VALUES(?)";
     let insert = [req.token.user_id, req.body.message];
-    conn.query(sql,(err,result) =>{
+    conn.query(sql,[insert],(err,result) =>{
         if(err) throw err;
         res.json({message: "feed inserted"});
     });
