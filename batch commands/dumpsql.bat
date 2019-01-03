@@ -1,0 +1,1 @@
+mysqldump -h localhost -u root db_cramspot > ../database/db_cramspot.sql
