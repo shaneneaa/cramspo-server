@@ -125,6 +125,23 @@ app.get('/workspace', (req,res)=>{
     });
 });
 
+app.get('/workspaceDay', (req,res)=>{
+    let sql = "SELECT * FROM workspace WHERE isVerify = 1 AND rate_type='day'";
+    conn.query(sql,(err,result)=>{
+        if(err) throw err;
+        res.json(result);
+    });
+});
+app.get('/workspaceHour', (req,res)=>{
+    let sql = "SELECT * FROM workspace WHERE isVerify = 1 AND rate_type='hour'";
+    conn.query(sql,(err,result)=>{
+        if(err) throw err;
+        res.json(result);
+    });
+});
+
+
+
 
 
 app.get('/workspace/:id',verifyToken, (req,res)=>{
@@ -160,6 +177,16 @@ app.get('/workspace-all', (req,res)=>{
     conn.query(sql,(err,result)=>{
         if(err) throw err;
         res.json(result);
+    });
+});
+
+app.delete('/workspace',verifyToken,(req,res)=>{
+    console.log(req.body.space_id);
+
+    let sql = "DELETE FROM workspace WHERE space_id = ? ";
+    conn.query(sql,[req.body.space_id],(err,result)=>{
+        if(err) throw err;
+        res.json({message: "deleted from database"});
     });
 });
 

@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 06, 2018 at 11:42 AM
+-- Generation Time: Jan 03, 2019 at 11:06 AM
 -- Server version: 10.1.28-MariaDB
--- PHP Version: 7.1.11
+-- PHP Version: 7.1.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -35,6 +35,16 @@ CREATE TABLE `feed` (
   `date_added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Dumping data for table `feed`
+--
+
+INSERT INTO `feed` (`feed_id`, `user_id`, `message`, `date_added`) VALUES
+(3, 4, 'cute', '2018-12-13 14:54:57'),
+(4, 4, 'ko', '2018-12-13 15:16:01'),
+(5, 4, 'hehe', '2018-12-13 15:16:21'),
+(6, 5, 'sasad', '2019-01-03 10:06:00');
+
 -- --------------------------------------------------------
 
 --
@@ -47,15 +57,17 @@ CREATE TABLE `notification` (
   `from_user` int(11) NOT NULL,
   `type` varchar(255) NOT NULL,
   `date_time` datetime NOT NULL,
-  `body` varchar(255) NOT NULL
+  `body` varchar(255) NOT NULL,
+  `workspace_id` int(11) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `notification`
 --
 
-INSERT INTO `notification` (`notification_id`, `to_user`, `from_user`, `type`, `date_time`, `body`) VALUES
-(8, 5, 5, '1', '3201-02-13 12:12:00', '');
+INSERT INTO `notification` (`notification_id`, `to_user`, `from_user`, `type`, `date_time`, `body`, `workspace_id`, `date_created`) VALUES
+(20, 5, 5, '2', '2019-01-17 02:12:00', '', 8, '2019-01-03 09:43:08');
 
 -- --------------------------------------------------------
 
@@ -111,8 +123,9 @@ CREATE TABLE `workspace` (
 --
 
 INSERT INTO `workspace` (`space_id`, `user_id`, `picture`, `rate`, `amenities`, `location_no`, `location_street`, `location_barangay`, `location_city`, `location_province`, `type`, `rate_type`, `capacity`, `isVerify`, `workspace_image`) VALUES
-(6, 5, '', '343', 'fdsfs', '232', 'fsadfa', 'dsafasdf', '', 'asdfasdf', 'Corporate Office', 'hour', 3434, 1, 'http://localhost:3000/images/workspace/nonn82sjpc9wxjv.jpg'),
-(7, 5, '', '200', 'Computer, Wifi, shabu', '21', 'Amagis', 'Mabayuan', 'Olongapo', 'Zambales', 'Empty Room', 'day', 20, 1, 'http://localhost:3000/images/workspace/nonn4d4jpcc0zy3.jpg');
+(8, 5, '', '150', 'wifi, laptop', '61', 'Lower', 'Kalaklan', 'Olongapo City', 'Zambales', 'Coworking Space', 'day', 3, 1, 'http://localhost:3000/images/workspace/5a9dq7vsjpcp6w46.jpg'),
+(10, 4, '', '12123', 'qwerf', 'qw', 'qwqws', 'dad', 'ad', 'asd', 'Coworking Space', 'hour', 21, 1, 'http://localhost:3000/images/workspace/5a9dq9rkjpmsgghw.jpg'),
+(11, 5, '', '212', 'wifi', '12', 'east', 'Tapinac', 'Olongapo', 'Zambales', 'Coworking Space', 'day', 12, 1, 'http://localhost:3000/images/workspace/5a9dq6bcjq6n6yat.jpg');
 
 --
 -- Indexes for dumped tables
@@ -131,7 +144,8 @@ ALTER TABLE `feed`
 ALTER TABLE `notification`
   ADD PRIMARY KEY (`notification_id`),
   ADD KEY `to_user` (`to_user`),
-  ADD KEY `from_user` (`from_user`);
+  ADD KEY `from_user` (`from_user`),
+  ADD KEY `workspace_id` (`workspace_id`);
 
 --
 -- Indexes for table `user`
@@ -154,13 +168,13 @@ ALTER TABLE `workspace`
 -- AUTO_INCREMENT for table `feed`
 --
 ALTER TABLE `feed`
-  MODIFY `feed_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `feed_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `notification`
 --
 ALTER TABLE `notification`
-  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `user`
@@ -172,7 +186,7 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `workspace`
 --
 ALTER TABLE `workspace`
-  MODIFY `space_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `space_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Constraints for dumped tables
@@ -189,7 +203,8 @@ ALTER TABLE `feed`
 --
 ALTER TABLE `notification`
   ADD CONSTRAINT `notification_ibfk_1` FOREIGN KEY (`to_user`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `notification_ibfk_2` FOREIGN KEY (`from_user`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `notification_ibfk_2` FOREIGN KEY (`from_user`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `notification_ibfk_3` FOREIGN KEY (`workspace_id`) REFERENCES `workspace` (`space_id`);
 
 --
 -- Constraints for table `workspace`
