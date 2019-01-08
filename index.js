@@ -117,6 +117,16 @@ app.post('/workspace',[verifyToken,uploadPhoto], (req,res)=>{
     });
 }); 
 
+app.post('/workspace/book',verifyToken,(req,res)=>{
+    req.body['user_id'] = req.token.user_id;
+    let sql = "INSERT INTO booking SET ?";
+    conn.query(sql,[req.body], (err,result) =>{
+        if(err) throw err;
+
+        res.json({message: "booking inserted"});
+    });
+});
+
 app.get('/workspace', (req,res)=>{
     let sql = "SELECT * FROM workspace WHERE isVerify = 1";
     conn.query(sql,(err,result)=>{
@@ -180,6 +190,7 @@ app.get('/workspace-all', (req,res)=>{
     });
 });
 
+
 app.delete('/workspace',verifyToken,(req,res)=>{
     console.log(req.body.space_id);
 
@@ -236,6 +247,15 @@ app.get('/notification',verifyToken,(req,res)=>{
     });
 });
 
+app.get('/notification/:id',verifyToken, (req,res)=>{
+    let notification_id = req.params.id;
+    let sql = "SELECT * FROM notification WHERE notification_id = ? ";
+    conn.query(sql, [notification_id], (err,result)=>{
+        if(err) throw err;
+        res.json(result[0]);
+    });
+});
+
 app.post('/feed',verifyToken, (req,res)=>{
     let sql = "INSERT INTO feed(user_id,message) VALUES(?)";
     let insert = [req.token.user_id, req.body.message];
@@ -252,6 +272,7 @@ app.get('/feed',verifyToken, (req,res)=>{
         res.json(result);
     });
 });
+
 
 
 function verifyToken(req,res,next){
