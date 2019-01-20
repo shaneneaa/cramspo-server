@@ -128,7 +128,7 @@ app.post('/workspace/book',verifyToken,(req,res)=>{
 });
 
 app.get('/workspace', (req,res)=>{
-    let sql = "SELECT * FROM workspace WHERE isVerify = 1";
+    let sql = "SELECT * FROM workspace WHERE isVerify = 1 ORDER BY space_id Desc";
     conn.query(sql,(err,result)=>{
         if(err) throw err;
         res.json(result);
@@ -136,14 +136,14 @@ app.get('/workspace', (req,res)=>{
 });
 
 app.get('/workspaceDay', (req,res)=>{
-    let sql = "SELECT * FROM workspace WHERE isVerify = 1 AND rate_type='day'";
+    let sql = "SELECT * FROM workspace WHERE isVerify = 1 AND rate_type='day' ORDER BY space_id Desc";
     conn.query(sql,(err,result)=>{
         if(err) throw err;
         res.json(result);
     });
 });
 app.get('/workspaceHour', (req,res)=>{
-    let sql = "SELECT * FROM workspace WHERE isVerify = 1 AND rate_type='hour'";
+    let sql = "SELECT * FROM workspace WHERE isVerify = 1 AND rate_type='hour' ORDER BY space_id Desc";
     conn.query(sql,(err,result)=>{
         if(err) throw err;
         res.json(result);
@@ -165,7 +165,7 @@ app.get('/workspace/:id',verifyToken, (req,res)=>{
 
 app.get('/workspace/user/:id',verifyToken, (req,res)=>{
     let workspace_id = req.params.id;
-    let sql = "SELECT * FROM workspace WHERE user_id = ? AND isVerify = 1";
+    let sql = "SELECT * FROM workspace WHERE user_id = ? AND isVerify = 1 ORDER BY space_id Desc";
     conn.query(sql, [workspace_id], (err,result)=>{
         if(err) throw err;
         res.json(result);
@@ -183,7 +183,7 @@ app.post('/workspace-verify',(req,res)=>{
 });
 
 app.get('/workspace-all', (req,res)=>{
-    let sql = "SELECT workspace.* , user.firstname, user.lastname FROM workspace LEFT JOIN user on user.user_id = workspace.user_id";
+    let sql = "SELECT workspace.* , user.firstname, user.lastname FROM workspace LEFT JOIN user on user.user_id = workspace.user_id ORDER BY space_id Desc";
     conn.query(sql,(err,result)=>{
         if(err) throw err;
         res.json(result);
@@ -240,7 +240,7 @@ app.get('/notification',verifyToken,(req,res)=>{
     let sql = `SELECT notification.* , user.firstname, user.lastname 
     FROM notification 
     LEFT JOIN user on user.user_id = notification.from_user 
-    WHERE notification.to_user = ?`;
+    WHERE notification.to_user = ? ORDER BY notification_id Desc`;
     conn.query(sql,[req.token.user_id],(err,result)=>{
         if(err) throw err;
         res.json(result);
@@ -266,7 +266,7 @@ app.post('/feed',verifyToken, (req,res)=>{
 });
 
 app.get('/feed',verifyToken, (req,res)=>{
-    let sql = "SELECT * FROM feed";
+    let sql = "SELECT * FROM feed ORDER BY feed_id Desc";
     conn.query(sql,(err,result)=>{
         if(err) throw err;
         res.json(result);
