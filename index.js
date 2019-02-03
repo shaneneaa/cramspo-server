@@ -273,7 +273,13 @@ app.get('/feed',verifyToken, (req,res)=>{
     });
 });
 
-
+app.post('/opening-hours', verifyToken, (req, res) => {
+    const sql = "INSERT INTO opening_hours SET ?";
+    conn.query(sql, req.body, (err,result)=>{
+        if(err) return res.status(500).json({error: err});
+        res.json({message: "Success!"});
+    });
+});
 
 function verifyToken(req,res,next){
     res.setHeader('Content-type','Application/json');
