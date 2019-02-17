@@ -112,6 +112,12 @@ app.post('/workspace',[verifyToken,uploadPhoto], (req,res)=>{
     req.body['user_id'] = req.token.user_id;
     let sql = "INSERT INTO workspace SET ?";
     conn.query(sql,[req.body], (err,result) =>{
+        console.log(result.space_id);
+        let sql2 = "INSERT INTO availability SET ?";
+        conn.query(sql2, {space_id: result.space_id}, (err, result) => {
+            
+        });
+
         if(err) throw err;
         res.json({message: "workspace inserted"});
     });
